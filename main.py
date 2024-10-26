@@ -1,28 +1,44 @@
 import os
 import cv2
 import numpy as np
-from sklearn.metrics import pairwise_distances
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from skimage.feature import local_binary_pattern, hog
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.pipeline import Pipeline
 
-# Define the size to which all images will be resized
-IMAGE_SIZE = (128, 128)  # Example size, change as needed
+# Parameters
+IMAGE_SIZE = (128, 128)
+LBP_POINTS = 8
+LBP_RADIUS = 1
+HOG_ORIENTATIONS = 9
+HOG_PIXELS_PER_CELL = (8, 8)
+HOG_CELLS_PER_BLOCK = (2, 2)
 
 def compute_lbp(image):
-    """Compute Local Binary Pattern representation of the image."""
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    lbp_image = np.zeros_like(gray, dtype=np.uint8)
-    for r in range(1, gray.shape[0]-1):
-        for c in range(1, gray.shape[1]-1):
-            center = gray[r, c]
-            binary_string = ''
-            for dr, dc in [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)]:
-                binary_string += '1' if gray[r+dr, c+dc] > center else '0'
-            lbp_value = int(binary_string, 2)
-            lbp_image[r, c] = lbp_value
-    return lbp_image.flatten()
+    lbp = local_binary_pattern(gray, LBP_POINTS, LBP_RADIUS, method='uniform')
+    n_bins = int(lbp.max() + 1)
+    hist, _ = np.histogram(lbp.ravel(), bins=n_bins, range=(0, n_bins), density=True)
+    return hist
 
-def load_images_from_folder(folder):
-    """Load images from a folder and return them in a list."""
-    images = []
+def compute_hog(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    hog_features = hog(
+        gray,
+        orientations=HOG_ORIENTATIONS,
+        pixels_per_cell=HOG_PIXELS_PER_CELL,
+        cells_per_block=HOG_CELLS_PER_BLOCK,
+        block_norm='L2-Hys',
+        visualize=False,
+        transform_sqrt=True,
+        feature_vector=True
+    )
+    return hog_features
+
+def load_images_from_folder(folder, use_lbp=True, use_hog=True):
+    features = []
     labels = []
     for label in os.listdir(folder):
         label_folder = os.path.join(folder, label)
@@ -31,35 +47,49 @@ def load_images_from_folder(folder):
                 img_path = os.path.join(label_folder, filename)
                 img = cv2.imread(img_path)
                 if img is not None:
-                    img_resized = cv2.resize(img, IMAGE_SIZE)  # Resize the image
-                    images.append(compute_lbp(img_resized))
+                    img_resized = cv2.resize(img, IMAGE_SIZE)
+                    feature_list = []
+                    if use_lbp:
+                        lbp_features = compute_lbp(img_resized)
+                        feature_list.append(lbp_features)
+                    if use_hog:
+                        hog_features = compute_hog(img_resized)
+                        feature_list.append(hog_features)
+                    combined_features = np.hstack(feature_list)
+                    features.append(combined_features)
                     labels.append(label)
-    return np.array(images), np.array(labels)
+    return np.array(features), np.array(labels)
 
-def classify_images(test_images, train_images, train_labels):
-    """Classify the test images using Euclidean distance."""
-    results = []
-    for test_img in test_images:
-        distances = pairwise_distances(test_img.reshape(1, -1), train_images)
-        nearest_idx = np.argmin(distances)
-        results.append(train_labels[nearest_idx])
-    return results
-
-def evaluate_model(test_images, test_labels, train_images, train_labels):
-    """Evaluate the model and calculate the accuracy."""
-    predictions = classify_images(test_images, train_images, train_labels)
-    accuracy = np.sum(predictions == test_labels) / len(test_labels) * 100
-    return accuracy
-
-# Main function to run the above code
 if __name__ == "__main__":
-    # Load training data
-    train_images, train_labels = load_images_from_folder('images/train')  # Path to your images folder
+    # Load data
+    train_features, train_labels = load_images_from_folder('images/train')
+    test_features, test_labels = load_images_from_folder('images/test')
 
-    # Load test data
-    test_images, test_labels = load_images_from_folder('images/test')  # Path to your test images folder
+    # Normalize features
+    scaler = MinMaxScaler()
+    train_features = scaler.fit_transform(train_features)
+    test_features = scaler.transform(test_features)
 
-    # Evaluate the model
-    accuracy = evaluate_model(test_images, test_labels, train_images, train_labels)
+    # Optionally skip PCA
 
+    # Try Random Forest Classifier
+    parameters = {
+        'n_estimators': [100, 200],
+        'max_depth': [None, 10, 20],
+        'min_samples_split': [2, 5]
+    }
+    clf = GridSearchCV(RandomForestClassifier(), parameters, cv=5, n_jobs=-1)
+    clf.fit(train_features, train_labels)
+    print(f"Best parameters found: {clf.best_params_}")
+
+    # Evaluate on test data
+    predictions = clf.predict(test_features)
+    accuracy = np.mean(predictions == test_labels) * 100
     print(f"Accuracy: {accuracy:.2f}%")
+
+    # Detailed evaluation
+    print("\nClassification Report:")
+    print(classification_report(test_labels, predictions))
+
+    print("Confusion Matrix:")
+    print(confusion_matrix(test_labels, predictions))
