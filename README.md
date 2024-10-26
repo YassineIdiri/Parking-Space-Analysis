@@ -1,6 +1,7 @@
+![parking](https://github.com/user-attachments/assets/9ebfca16-f7f7-4d68-806c-06e1109f1133)
+
 ## 🚀 Getting Started
 ### Install
-ation
 Clone the repository:
 ``` bash
 pip install opencv-python
@@ -9,9 +10,6 @@ pip install scikit-learn
 ```
 
 The project aims to classify images of parking spaces as either "occupied" or "free" using machine learning techniques. It utilizes image processing and feature extraction methods, specifically Local Binary Patterns (LBP) and Histogram of Oriented Gradients (HOG), combined with a Random Forest classifier to achieve this goal. The core of the project lies in extracting both texture and shape-based features from images to build an accurate classification model.
-
-
-![parking](https://github.com/user-attachments/assets/9ebfca16-f7f7-4d68-806c-06e1109f1133)
 
 ### 📄 Report
 
