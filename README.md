@@ -1,6 +1,6 @@
-![parking](https://github.com/user-attachments/assets/9ebfca16-f7f7-4d68-806c-06e1109f1133)
-
+![parking](https://github.com/user-attachments/assets/6a4a3652-e2d3-4502-b0c0-251c2bf8d0c9)
 ## 🚀 Getting Started
+
 ### Install
 Clone the repository:
 ``` bash
