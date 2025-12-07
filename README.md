@@ -22,7 +22,6 @@ OpenCV: A computer vision library for image processing tasks such as reading, re
 scikit-image: A library that provides efficient implementations for image processing functions like Local Binary Patterns (LBP) and Histogram of Oriented Gradients (HOG).
 NumPy: A fundamental package for numerical operations and handling arrays.
 scikit-learn: A machine learning library used for classification, hyperparameter tuning (GridSearchCV), normalization, and evaluation metrics.
-Pandas (if used for data handling): For organizing and managing labeled datasets.
 
 ### 🔎 Approach
 
@@ -41,4 +40,5 @@ The model is evaluated on test images using accuracy, precision, recall, F1-scor
 
 ### 📈 Outcome 
 
-The project successfully uses a combination of texture (LBP) and shape (HOG) features to classify parking spaces, achieving an accuracy of around 85% with an optimized Random Forest model. This approach is effective for scenarios where differentiating between occupied and free parking spaces is required based on image data.
+The project achieves a solid level of accuracy on the test set, showing that combining LBP and HOG features with a Random Forest classifier is effective for this task.
+This approach is effective for scenarios where differentiating between occupied and free parking spaces is required based on image data.
