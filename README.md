@@ -8,8 +8,7 @@ pip install opencv-python
 pip install numpy
 pip install scikit-learn
 ```
-
-The project aims to classify images of parking spaces as either "occupied" or "free" using machine learning techniques. It utilizes image processing and feature extraction methods, specifically Local Binary Patterns (LBP) and Histogram of Oriented Gradients (HOG), combined with a Random Forest classifier to achieve this goal. The core of the project lies in extracting both texture and shape-based features from images to build an accurate classification model.
+The project aims to classify images of parking spaces as either “occupied” or “free” using machine learning techniques. It relies on image processing and feature extraction based on Local Binary Patterns (LBP) to capture the texture of each parking space. The extracted LBP features are then used to train a classification model to accurately distinguish between occupied and free spots.
 
 ### 📄 Report
 
@@ -17,28 +16,37 @@ The project aims to classify images of parking spaces as either "occupied" or "f
 
 ### ⚙️ Technologies Used
 
-Python: The programming language used for implementing the entire project.
-OpenCV: A computer vision library for image processing tasks such as reading, resizing, and converting images to grayscale.
-scikit-image: A library that provides efficient implementations for image processing functions like Local Binary Patterns (LBP) and Histogram of Oriented Gradients (HOG).
-NumPy: A fundamental package for numerical operations and handling arrays.
-scikit-learn: A machine learning library used for classification, hyperparameter tuning (GridSearchCV), normalization, and evaluation metrics.
-Pandas (if used for data handling): For organizing and managing labeled datasets.
+⚙️ Technologies Used
+
+Python – main programming language used for the implementation.
+
+OpenCV – for image processing tasks such as loading images, resizing, grayscale conversion, and ROI extraction.
+
+scikit-image – for computing Local Binary Patterns (LBP) and generating LBP histograms.
+
+NumPy – for numerical operations and array manipulation.
+
+scikit-learn – for splitting data, training the classifier, and evaluating performance.
 
 ### 🔎 Approach
 
-Image Feature Extraction:
+Image Feature Extraction (LBP Only)
+Images of parking spaces are preprocessed (grayscale, normalization, resizing).
 
-Local Binary Patterns (LBP): Extracts texture information by identifying local patterns in grayscale images. An LBP histogram is computed to represent texture-based features.
-Histogram of Oriented Gradients (HOG): Extracts shape-based features by analyzing the gradients in different directions within an image.
-Data Normalization: The features extracted using LBP and HOG are normalized using MinMaxScaler to bring all values within the range [0, 1].
+Local Binary Patterns (LBP) are computed for each image to capture texture information.
 
-Classification:
+An LBP histogram is generated for each image and used as the feature vector for classification.
 
-A Random Forest Classifier is used to classify the features into "occupied" or "free". The classifier’s hyperparameters are optimized using GridSearchCV to find the best settings for n_estimators, max_depth, and min_samples_split.
-Model Evaluation:
+Classification
+A simple ML classifier (e.g., SVM, KNN, or Logistic Regression) is trained using the LBP histograms.
 
-The model is evaluated on test images using accuracy, precision, recall, F1-score, and a confusion matrix.
+The dataset is split into training and testing sets to evaluate generalization.
 
-### 📈 Outcome 
+Model Evaluation
+The model is evaluated using metrics such as accuracy and a confusion matrix.
 
-The project successfully uses a combination of texture (LBP) and shape (HOG) features to classify parking spaces, achieving an accuracy of around 85% with an optimized Random Forest model. This approach is effective for scenarios where differentiating between occupied and free parking spaces is required based on image data.
+The results show how well the system distinguishes between “occupied” and “free” parking spaces.
+
+### 📈 Outcome
+
+The system classifies parking spaces based on texture patterns extracted using LBP, achieving a good level of accuracy given the simplicity of the method. This demonstrates the effectiveness of texture-based image descriptors for lightweight computer vision tasks such as parking occupancy detection.
